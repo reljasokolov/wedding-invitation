@@ -1,13 +1,8 @@
 import { Box, Text, VStack, HStack } from "@chakra-ui/react";
 import { motion } from "framer-motion";
+import cloud from "../assets/cloud.png";
 
 const MotionBox = motion.create(Box);
-
-const address = "Bianca Event Center, 22. Divizije, 18300 Pirot, Srbija";
-
-const mapUrl =
-  "https://www.google.com/maps/search/?api=1&query=" +
-  encodeURIComponent(address);
 
 export default function Venue() {
   return (
@@ -27,11 +22,7 @@ export default function Venue() {
         opacity={0.7}
         pointerEvents="none"
       >
-        <img
-          src="/src/assets/cloud.png"
-          alt=""
-          style={{ width: "100%", display: "block" }}
-        />
+        <img src={cloud} alt="" style={{ width: "100%", display: "block" }} />
       </Box>
 
       <Box
@@ -42,11 +33,7 @@ export default function Venue() {
         opacity={0.6}
         pointerEvents="none"
       >
-        <img
-          src="/src/assets/cloud.png"
-          alt=""
-          style={{ width: "100%", display: "block" }}
-        />
+        <img src={cloud} alt="" style={{ width: "100%", display: "block" }} />
       </Box>
 
       <VStack gap={7} maxW="760px" mx="auto" position="relative">
@@ -150,6 +137,7 @@ export default function Venue() {
           </VStack>
 
           <Box
+            as="button"
             onClick={() =>
               window.open(
                 "https://maps.app.goo.gl/Lc9e4LnLasoVgQbS6",
@@ -171,6 +159,10 @@ export default function Venue() {
             fontWeight="500"
             cursor="pointer"
             transition="all 0.25s ease"
+            _hover={{
+              bg: "#426f94",
+              transform: "translateY(-2px)",
+            }}
           >
             Pronađi nas na mapi ↗
           </Box>
