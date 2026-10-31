@@ -1,64 +1,171 @@
-import { Box, Button, Input, Text, Textarea, VStack } from "@chakra-ui/react";
-import { motion } from "framer-motion";
 import { useState } from "react";
-import { supabase } from "../superbase";
+import {
+  Box,
+  Button,
+  Input,
+  Text,
+  Textarea,
+  VStack,
+  HStack,
+} from "@chakra-ui/react";
+import { motion } from "framer-motion";
 
-const MotionBox = motion(Box);
+import { supabase } from "../superbase";
+import cloud from "../assets/cloud.png";
+
+const MotionBox = motion.create(Box);
+
+function FlyingCloud({
+  top,
+  width,
+  duration,
+  delay,
+  reverse = false,
+}: {
+  top: string;
+  width: string;
+  duration: number;
+  delay: number;
+  reverse?: boolean;
+}) {
+  return (
+    <MotionBox
+      position="absolute"
+      top={top}
+      left={reverse ? "auto" : "-220px"}
+      right={reverse ? "-220px" : "auto"}
+      width={width}
+      pointerEvents="none"
+      zIndex={0}
+      initial={{ x: 0 }}
+      animate={{
+        x: reverse ? ["0vw", "-125vw"] : ["0vw", "125vw"],
+      }}
+      transition={{
+        duration,
+        delay,
+        repeat: Infinity,
+        ease: "linear",
+      }}
+    >
+      <img
+        src={cloud}
+        alt=""
+        style={{
+          display: "block",
+          width: "100%",
+          height: "auto",
+        }}
+      />
+    </MotionBox>
+  );
+}
 
 export default function RSVP() {
   const [submitted, setSubmitted] = useState(false);
   const [attendance, setAttendance] = useState<"yes" | "no" | null>(null);
-  const [name, setName] = useState("");
-  const [message, setMessage] = useState("");
   const [guests, setGuests] = useState(1);
+  const [guestNames, setGuestNames] = useState([""]);
+  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const handleGuestCount = (number: number) => {
+    setGuests(number);
+
+    setGuestNames((previous) => {
+      const updated = [...previous];
+
+      while (updated.length < number) {
+        updated.push("");
+      }
+
+      return updated.slice(0, number);
+    });
+  };
+
+  const handleGuestName = (index: number, value: string) => {
+    setGuestNames((previous) => {
+      const updated = [...previous];
+      updated[index] = value;
+      return updated;
+    });
+  };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
     setError("");
 
-    if (!name.trim()) {
-      setError("Molimo uvedite ime.");
+    if (!attendance) {
+      setError("Molimo izaberite da li dolazite.");
       return;
     }
 
-    if (!attendance) {
-      setError("Molimo uvedite da li cete prisustvovati sa nama.");
-      return;
+    if (attendance === "yes") {
+      const emptyNames = guestNames.some((name) => !name.trim());
+
+      if (emptyNames) {
+        setError("Molimo unesite imena svih gostiju.");
+        return;
+      }
     }
 
     setLoading(true);
 
-    const { error: supabaseError } = await supabase.from("rsvps").insert({
-      guest_name: name.trim(),
-      attendance,
-      guests: attendance === "yes" ? guests : 0,
-      message: message.trim() || null,
-    });
+    try {
+      const names =
+        attendance === "yes" ? guestNames.map((name) => name.trim()) : [];
 
-    setLoading(false);
+      const { error: supabaseError } = await supabase.from("rsvps").insert({
+        guest_name: attendance === "yes" ? names[0] : "Bez dolaska",
+        attendance,
+        guests: attendance === "yes" ? guests : 0,
+        guest_names: names,
+        message: message.trim() || null,
+      });
 
-    if (supabaseError) {
-      console.error("SUPABASE ERROR:", supabaseError);
-      setError(supabaseError.message);
-      return;
+      if (supabaseError) {
+        console.error("SUPABASE ERROR:", supabaseError);
+        setError("Došlo je do greške. Pokušajte ponovo.");
+        return;
+      }
+
+      setSubmitted(true);
+    } catch (err) {
+      console.error(err);
+      setError("Proverite internet konekciju i pokušajte ponovo.");
+    } finally {
+      setLoading(false);
     }
-
-    setSubmitted(true);
   };
 
   return (
-    <Box bg="#F4F0E8" px={{ base: 6, md: 12 }} py={{ base: 24, md: 32 }}>
-      <Box maxW="650px" mx="auto">
+    <Box
+      as="section"
+      position="relative"
+      overflow="hidden"
+      minH="100svh"
+      bgGradient="linear(to-b, #dceeff, #f4f9ff, #e4f2ff)"
+      px={{ base: 5, md: 8 }}
+      py={{ base: 20, md: 28 }}
+    >
+      {/* Flying clouds */}
+      <FlyingCloud top="8%" width="140px" duration={48} delay={-10} />
+
+      <FlyingCloud top="25%" width="110px" duration={55} delay={-30} reverse />
+
+      <FlyingCloud top="55%" width="160px" duration={50} delay={-20} />
+
+      <FlyingCloud top="78%" width="125px" duration={58} delay={-35} reverse />
+
+      {/* RSVP CONTENT */}
+      <Box maxW="600px" mx="auto" position="relative" zIndex={2}>
         {!submitted ? (
           <>
             {/* HEADER */}
-
             <MotionBox
               textAlign="center"
-              mb={14}
+              mb={{ base: 10, md: 14 }}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -66,300 +173,301 @@ export default function RSVP() {
             >
               <VStack gap={4}>
                 <Text
-                  fontSize="9px"
-                  letterSpacing="0.4em"
+                  fontSize="10px"
+                  letterSpacing="0.3em"
                   textTransform="uppercase"
-                  color="#82796E"
+                  color="#7898b5"
                 >
                   Vaš odgovor
                 </Text>
 
                 <Text
                   fontFamily="serif"
-                  fontSize={{
-                    base: "40px",
-                    md: "54px",
-                  }}
+                  fontSize={{ base: "34px", md: "48px" }}
                   fontWeight="400"
-                  color="#302C27"
+                  color="#315777"
+                  lineHeight="1.2"
                 >
-                  Da li ćete nam se pridružiti?
+                  Da li nam se pridružuješ?
                 </Text>
 
-                <Box width="40px" height="1px" bg="#A88A64" />
+                <Box width="45px" height="1px" bg="#91b4d2" />
 
                 <Text
-                  fontSize="11px"
+                  fontSize="13px"
                   lineHeight="1.9"
-                  color="#756D63"
-                  maxW="430px"
+                  color="#71869a"
+                  maxW="420px"
                 >
-                  Voleli bismo da ovaj poseban dan proslavimo sa vama. Molimo
-                  vas da nam potvrdite da li ćete nam se pridružiti.
+                  Voleli bismo da ovaj poseban dan proslavimo zajedno sa vama.
+                  Molimo vas da nam potvrdite svoj dolazak.
                 </Text>
               </VStack>
             </MotionBox>
 
-            {/* FORM */}
-
+            {/* FORM CARD */}
             <MotionBox
+              bg="rgba(255,255,255,0.78)"
+              border="1px solid rgba(255,255,255,0.95)"
+              borderRadius="28px"
+              p={{ base: 5, md: 9 }}
+              boxShadow="0 15px 45px rgba(81,125,160,0.10)"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{
-                duration: 0.9,
-                delay: 0.15,
-              }}
+              viewport={{ once: true, amount: 0.1 }}
+              transition={{ duration: 0.8 }}
             >
               <form onSubmit={handleSubmit}>
-                <VStack gap={7}>
-                  {/* NAME */}
-
-                  <Box width="100%">
-                    <Text
-                      fontSize="9px"
-                      letterSpacing="0.25em"
-                      textTransform="uppercase"
-                      color="#756D63"
-                      mb={2}
-                    >
-                      Ime
-                    </Text>
-
-                    <Input
-                      name="name"
-                      value={name}
-                      onChange={(event) => setName(event.target.value)}
-                      placeholder="Uvedite ime"
-                      required
-                      border="none"
-                      borderBottom="1px solid"
-                      borderColor="#C8BBAA"
-                      borderRadius="0"
-                      px={0}
-                      height="48px"
-                      bg="transparent"
-                      fontSize="13px"
-                      color="#302C27"
-                      _placeholder={{
-                        color: "#A9A095",
-                      }}
-                      _focus={{
-                        borderColor: "#A88A64",
-                        boxShadow: "none",
-                      }}
-                    />
-                  </Box>
-
+                <VStack gap={7} align="stretch">
                   {/* ATTENDANCE */}
-
-                  <Box width="100%">
+                  <Box>
                     <Text
-                      fontSize="9px"
-                      letterSpacing="0.25em"
+                      fontSize="10px"
+                      letterSpacing="0.2em"
                       textTransform="uppercase"
-                      color="#756D63"
+                      color="#587b98"
                       mb={4}
                     >
-                      Da li ćete nam se pridružiti?
+                      Da li ćeš nam se pridružiti?
                     </Text>
 
-                    <VStack align="stretch" gap={3}>
+                    <VStack gap={3}>
                       <Button
                         type="button"
-                        variant="outline"
-                        borderRadius="0"
+                        width="100%"
+                        height="58px"
+                        borderRadius="14px"
+                        border="1px solid"
                         borderColor={
-                          attendance === "yes" ? "#A88A64" : "#C8BBAA"
+                          attendance === "yes" ? "#6d9cbd" : "#d4e4f1"
                         }
-                        bg={attendance === "yes" ? "#E8DED0" : "transparent"}
+                        bg={attendance === "yes" ? "#dceeff" : "white"}
+                        color="#315777"
                         justifyContent="flex-start"
-                        height="52px"
-                        fontSize="10px"
-                        letterSpacing="0.2em"
-                        textTransform="uppercase"
-                        fontWeight="400"
-                        onClick={() => setAttendance("yes")}
-                        _hover={{
-                          borderColor: "#A88A64",
+                        px={5}
+                        fontSize="12px"
+                        fontWeight="500"
+                        onClick={() => {
+                          setAttendance("yes");
+                          setError("");
                         }}
+                        _hover={{ bg: "#e4f2ff" }}
                       >
-                        Da, dolazim!
+                        ♡　 Da, dolazim!
                       </Button>
 
                       <Button
                         type="button"
-                        variant="outline"
-                        borderRadius="0"
+                        width="100%"
+                        height="58px"
+                        borderRadius="14px"
+                        border="1px solid"
                         borderColor={
-                          attendance === "no" ? "#A88A64" : "#C8BBAA"
+                          attendance === "no" ? "#6d9cbd" : "#d4e4f1"
                         }
-                        bg={attendance === "no" ? "#E8DED0" : "transparent"}
+                        bg={attendance === "no" ? "#dceeff" : "white"}
+                        color="#587b98"
                         justifyContent="flex-start"
-                        height="52px"
-                        fontSize="10px"
-                        letterSpacing="0.2em"
-                        textTransform="uppercase"
+                        px={5}
+                        fontSize="12px"
                         fontWeight="400"
-                        onClick={() => setAttendance("no")}
-                        _hover={{
-                          borderColor: "#A88A64",
+                        onClick={() => {
+                          setAttendance("no");
+                          setError("");
                         }}
+                        _hover={{ bg: "#e4f2ff" }}
                       >
-                        Izvinite, ali nažalost neću doći.
+                        ☁　 Nažalost, ne mogu da dođem.
                       </Button>
                     </VStack>
                   </Box>
 
                   {/* NUMBER OF GUESTS */}
-
                   {attendance === "yes" && (
-                    <Box width="100%">
+                    <MotionBox
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      transition={{ duration: 0.35 }}
+                      overflow="hidden"
+                    >
                       <Text
-                        fontSize="9px"
-                        letterSpacing="0.25em"
+                        fontSize="10px"
+                        letterSpacing="0.2em"
                         textTransform="uppercase"
-                        color="#756D63"
-                        mb={4}
+                        color="#587b98"
+                        mb={3}
                       >
                         Broj gostiju
                       </Text>
 
-                      <VStack align="stretch" gap={3}>
+                      <HStack gap={2}>
                         {[1, 2, 3, 4].map((number) => (
                           <Button
                             key={number}
                             type="button"
-                            variant="outline"
-                            borderRadius="0"
-                            borderColor={
-                              guests === number ? "#A88A64" : "#C8BBAA"
-                            }
-                            bg={guests === number ? "#E8DED0" : "transparent"}
-                            justifyContent="flex-start"
+                            flex="1"
                             height="48px"
-                            fontSize="10px"
-                            letterSpacing="0.2em"
-                            textTransform="uppercase"
-                            fontWeight="400"
-                            onClick={() => setGuests(number)}
-                            _hover={{
-                              borderColor: "#A88A64",
-                            }}
+                            borderRadius="12px"
+                            border="1px solid"
+                            borderColor={
+                              guests === number ? "#6d9cbd" : "#d4e4f1"
+                            }
+                            bg={guests === number ? "#dceeff" : "white"}
+                            color="#315777"
+                            onClick={() => handleGuestCount(number)}
+                            _hover={{ bg: "#e4f2ff" }}
                           >
-                            {number} {number === 1 ? "Gost" : "Gosta"}
+                            {number}
                           </Button>
                         ))}
+                      </HStack>
+
+                      {/* GUEST NAMES */}
+                      <VStack align="stretch" gap={4} mt={6}>
+                        <Text
+                          fontSize="10px"
+                          letterSpacing="0.2em"
+                          textTransform="uppercase"
+                          color="#587b98"
+                        >
+                          Imena gostiju
+                        </Text>
+
+                        {guestNames.map((guestName, index) => (
+                          <MotionBox
+                            key={index}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            <Text fontSize="11px" color="#7898b5" mb={2}>
+                              Gost {index + 1}
+                            </Text>
+
+                            <Input
+                              value={guestName}
+                              onChange={(e) =>
+                                handleGuestName(index, e.target.value)
+                              }
+                              placeholder={`Ime i prezime gosta ${index + 1}`}
+                              required
+                              border="1px solid #d4e4f1"
+                              borderRadius="12px"
+                              bg="white"
+                              height="48px"
+                              px={4}
+                              fontSize="13px"
+                              color="#315777"
+                              _placeholder={{ color: "#a1b3c3" }}
+                              _focus={{
+                                borderColor: "#789fbe",
+                                boxShadow: "none",
+                              }}
+                            />
+                          </MotionBox>
+                        ))}
                       </VStack>
-                    </Box>
+                    </MotionBox>
                   )}
 
                   {/* MESSAGE */}
-
-                  <Box width="100%">
+                  <Box>
                     <Text
-                      fontSize="9px"
-                      letterSpacing="0.25em"
+                      fontSize="10px"
+                      letterSpacing="0.2em"
                       textTransform="uppercase"
-                      color="#756D63"
-                      mb={2}
+                      color="#587b98"
+                      mb={3}
                     >
                       Poruka za nas
+                      <Text as="span" color="#9aafc1" ml={2}>
+                        (opciono)
+                      </Text>
                     </Text>
 
                     <Textarea
-                      name="message"
                       value={message}
-                      onChange={(event) => setMessage(event.target.value)}
-                      placeholder="Ostavi nam kratku porukicu..."
-                      border="1px solid"
-                      borderColor="#C8BBAA"
-                      borderRadius="0"
-                      bg="transparent"
-                      minH="130px"
+                      onChange={(e) => setMessage(e.target.value)}
+                      placeholder="Ostavi nam neku lepu porukicu..."
+                      border="1px solid #d4e4f1"
+                      borderRadius="12px"
+                      bg="white"
+                      minH="110px"
                       resize="vertical"
                       fontSize="13px"
-                      color="#302C27"
-                      _placeholder={{
-                        color: "#A9A095",
-                      }}
+                      color="#315777"
+                      _placeholder={{ color: "#a1b3c3" }}
                       _focus={{
-                        borderColor: "#A88A64",
+                        borderColor: "#789fbe",
                         boxShadow: "none",
                       }}
                     />
                   </Box>
 
                   {/* ERROR */}
-
                   {error && (
-                    <Text
-                      width="100%"
-                      textAlign="center"
-                      fontSize="11px"
-                      color="#9B5C51"
-                    >
+                    <Text textAlign="center" fontSize="12px" color="#b45e65">
                       {error}
                     </Text>
                   )}
 
                   {/* SUBMIT */}
-
                   <Button
                     type="submit"
                     disabled={loading}
-                    borderRadius="0"
-                    bg="#302C27"
-                    color="#F8F4EC"
                     width="100%"
-                    height="56px"
-                    fontSize="9px"
-                    letterSpacing="0.3em"
-                    textTransform="uppercase"
-                    fontWeight="400"
+                    height="55px"
+                    borderRadius="14px"
+                    bg="#315777"
+                    color="white"
+                    fontSize="10px"
+                    letterSpacing="0.2em"
+                    fontWeight="500"
                     _hover={{
-                      bg: "#A88A64",
+                      bg: "#456f94",
+                      transform: "translateY(-2px)",
                     }}
+                    transition="all 0.2s"
                   >
-                    {loading ? "Sending..." : "Posalji"}
+                    {loading ? "Šaljem odgovor..." : "Pošalji odgovor"}
                   </Button>
                 </VStack>
               </form>
             </MotionBox>
           </>
         ) : (
+          /* SUCCESS MESSAGE */
           <MotionBox
             textAlign="center"
-            py={20}
-            initial={{ opacity: 0, scale: 0.96 }}
+            py={16}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8 }}
           >
             <VStack gap={5}>
               <Text
                 fontSize="10px"
-                letterSpacing="0.4em"
+                letterSpacing="0.3em"
                 textTransform="uppercase"
-                color="#82796E"
+                color="#7898b5"
               >
-                Hvala ti
+                Hvala ti!
               </Text>
 
               <Text
                 fontFamily="serif"
-                fontSize={{
-                  base: "40px",
-                  md: "54px",
-                }}
-                color="#302C27"
+                fontSize={{ base: "36px", md: "48px" }}
+                color="#315777"
               >
-                Jedva cekamo da te vidimo.
+                {attendance === "yes"
+                  ? "Jedva čekamo da se vidimo!"
+                  : "Nedostajaćeš nam!"}
               </Text>
 
-              <Box width="40px" height="1px" bg="#A88A64" />
+              <Box width="45px" height="1px" bg="#91b4d2" />
 
-              <Text fontSize="11px" color="#756D63">
-                Tvoj odgovor je stigao.
+              <Text fontSize="13px" color="#71869a">
+                Tvoj odgovor je uspešno zabeležen.
               </Text>
             </VStack>
           </MotionBox>

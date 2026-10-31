@@ -1,168 +1,191 @@
-import { Box, Button, Image, Text, VStack } from "@chakra-ui/react";
+import { Box, Text, VStack, HStack } from "@chakra-ui/react";
 import { motion } from "framer-motion";
-import venueImage from "../assets/venue.jpg";
 
-const MotionBox = motion(Box);
+const MotionBox = motion.create(Box);
+
+const address = "Bianca Event Center, 22. Divizije, 18300 Pirot, Srbija";
+
+const mapUrl =
+  "https://www.google.com/maps/search/?api=1&query=" +
+  encodeURIComponent(address);
 
 export default function Venue() {
   return (
     <Box
-      bg="#EAE3D8"
-      px={{ base: 6, md: 12 }}
-      py={{ base: 24, md: 32 }}
+      position="relative"
       overflow="hidden"
+      bg="#eaf5ff"
+      py={{ base: 16, md: 24 }}
+      px={4}
     >
+      {/* Dekorativni oblačići */}
       <Box
-        maxW="1200px"
-        mx="auto"
-        display="grid"
-        gridTemplateColumns={{
-          base: "1fr",
-          lg: "1.15fr 0.85fr",
-        }}
-        gap={{ base: 12, lg: 20 }}
-        alignItems="center"
+        position="absolute"
+        top="8%"
+        left="-35px"
+        width="150px"
+        opacity={0.7}
+        pointerEvents="none"
       >
-        {/* IMAGE */}
+        <img
+          src="/src/assets/cloud.png"
+          alt=""
+          style={{ width: "100%", display: "block" }}
+        />
+      </Box>
 
+      <Box
+        position="absolute"
+        bottom="5%"
+        right="-35px"
+        width="180px"
+        opacity={0.6}
+        pointerEvents="none"
+      >
+        <img
+          src="/src/assets/cloud.png"
+          alt=""
+          style={{ width: "100%", display: "block" }}
+        />
+      </Box>
+
+      <VStack gap={7} maxW="760px" mx="auto" position="relative">
         <MotionBox
-          initial={{ opacity: 0, x: -40 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{
-            duration: 1,
-            ease: [0.22, 1, 0.36, 1],
-          }}
+          textAlign="center"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+        >
+          <Text
+            fontSize="10px"
+            letterSpacing="0.3em"
+            textTransform="uppercase"
+            color="#6483a0"
+            mb={3}
+          >
+            Naša destinacija
+          </Text>
+
+          <Text
+            fontFamily="serif"
+            fontSize={{ base: "34px", md: "48px" }}
+            color="#315777"
+            lineHeight="1.2"
+          >
+            Gde se ukrcavamo?
+          </Text>
+
+          <Text mt={3} color="#6483a0" fontSize={{ base: "14px", md: "16px" }}>
+            Čekamo te da zajedno proslavimo Mijatov prvi rođendan.
+          </Text>
+        </MotionBox>
+
+        {/* Kartica lokacije */}
+        <MotionBox
+          width="100%"
+          maxW="560px"
+          bg="#fffdf8"
+          border="1px solid"
+          borderColor="#dce8f1"
+          borderRadius="24px"
+          p={{ base: 6, md: 10 }}
+          textAlign="center"
+          boxShadow="0 16px 45px rgba(57, 94, 125, 0.10)"
+          initial={{ opacity: 0, y: 25 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.15 }}
         >
           <Box
-            position="relative"
-            p={{ base: 2, md: 3 }}
-            border="1px solid"
-            borderColor="#C8BBAA"
+            width="58px"
+            height="58px"
+            mx="auto"
+            mb={5}
+            borderRadius="full"
+            bg="#e5f1fb"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
           >
-            <Box overflow="hidden" aspectRatio="1.15">
-              <Image
-                src={venueImage}
-                alt="Wedding venue"
-                width="100%"
-                height="100%"
-                objectFit="cover"
-              />
-            </Box>
+            <Text fontSize="27px">📍</Text>
+          </Box>
 
-            <Box
-              position="absolute"
-              top="-1px"
-              right="-1px"
-              width="55px"
-              height="55px"
-              borderTop="1px solid"
-              borderRight="1px solid"
-              borderColor="#A88A64"
-            />
+          <Text
+            fontFamily="serif"
+            fontSize={{ base: "27px", md: "34px" }}
+            color="#315777"
+            lineHeight="1.2"
+          >
+            Princ Restoran
+          </Text>
 
-            <Box
-              position="absolute"
-              bottom="-1px"
-              left="-1px"
-              width="55px"
-              height="55px"
-              borderBottom="1px solid"
-              borderLeft="1px solid"
-              borderColor="#A88A64"
-            />
+          <Text
+            mt={2}
+            fontSize="11px"
+            letterSpacing="0.2em"
+            textTransform="uppercase"
+            color="#7898b4"
+          >
+            Mala sala
+          </Text>
+
+          <Box width="45px" height="1px" bg="#b6cfe3" mx="auto" my={6} />
+
+          <VStack gap={3}>
+            <HStack justify="center" gap={2}>
+              <Text color="#6483a0" fontSize="15px">
+                Ivana Milutinovića 28, Niš, Srbija
+              </Text>
+            </HStack>
+
+            <HStack justify="center" gap={5} flexWrap="wrap">
+              <Text color="#6483a0" fontSize="14px">
+                📅 16. decembar
+              </Text>
+              <Text color="#6483a0" fontSize="14px">
+                🕔 17:00
+              </Text>
+            </HStack>
+          </VStack>
+
+          <Box
+            onClick={() =>
+              window.open(
+                "https://maps.app.goo.gl/Lc9e4LnLasoVgQbS6",
+                "_blank",
+                "noopener,noreferrer",
+              )
+            }
+            display="inline-flex"
+            alignItems="center"
+            justifyContent="center"
+            mt="28px"
+            px="28px"
+            py="12px"
+            bg="#315777"
+            color="white"
+            borderRadius="full"
+            fontSize="12px"
+            letterSpacing="0.08em"
+            fontWeight="500"
+            cursor="pointer"
+            transition="all 0.25s ease"
+          >
+            Pronađi nas na mapi ↗
           </Box>
         </MotionBox>
 
-        {/* CONTENT */}
-
-        <MotionBox
-          initial={{ opacity: 0, x: 40 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{
-            duration: 1,
-            delay: 0.15,
-            ease: [0.22, 1, 0.36, 1],
-          }}
+        <Text
+          fontFamily="serif"
+          fontStyle="italic"
+          color="#6483a0"
+          fontSize="17px"
+          textAlign="center"
         >
-          <VStack
-            align={{ base: "center", lg: "flex-start" }}
-            textAlign={{ base: "center", lg: "left" }}
-            gap={6}
-          >
-            <Text
-              fontSize="9px"
-              letterSpacing="0.4em"
-              textTransform="uppercase"
-              color="#82796E"
-            >
-              Mesto venčanja
-            </Text>
-
-            <Text
-              fontFamily="serif"
-              fontSize={{
-                base: "38px",
-                md: "52px",
-              }}
-              fontWeight="400"
-              lineHeight="1"
-              color="#302C27"
-            >
-              Perla
-              <br />
-              Event
-            </Text>
-
-            <Box width="40px" height="1px" bg="#A88A64" />
-
-            <Text fontSize="11px" lineHeight="1.9" color="#6F685E" maxW="420px">
-              Mesto gde ćemo sa našim najdražima proslaviti ljubav, zajedništvo
-              i početak jednog novog poglavlja.
-            </Text>
-
-            <VStack gap={1} align={{ base: "center", lg: "flex-start" }}>
-              <Text
-                fontSize="10px"
-                letterSpacing="0.2em"
-                textTransform="uppercase"
-                color="#302C27"
-              >
-                Perla
-              </Text>
-
-              <Text
-                fontSize="10px"
-                letterSpacing="0.2em"
-                textTransform="uppercase"
-                color="#82796E"
-              >
-                Beograd · Srbija
-              </Text>
-            </VStack>
-
-            <Button
-              variant="outline"
-              borderRadius="0"
-              borderColor="#A88A64"
-              color="#4E4840"
-              fontSize="9px"
-              letterSpacing="0.25em"
-              textTransform="uppercase"
-              fontWeight="400"
-              px={8}
-              py={6}
-              _hover={{
-                bg: "#A88A64",
-                color: "#F8F4EC",
-              }}
-            >
-              Pronadji na mapi
-            </Button>
-          </VStack>
-        </MotionBox>
-      </Box>
+          Radujemo se što ćemo slaviti zajedno! ☁️
+        </Text>
+      </VStack>
     </Box>
   );
 }

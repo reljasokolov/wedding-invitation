@@ -1,185 +1,179 @@
-import { Box, Text, VStack } from "@chakra-ui/react";
+import { Box, Text } from "@chakra-ui/react";
 import { motion } from "framer-motion";
-import weddingHero from "../assets/wedding-hero.mp4";
 
-const MotionBox = motion(Box);
+import cloud from "../assets/cloud.png";
+import invitation from "../assets/listic.png";
+
+const MotionBox = motion.create(Box);
+
+function FlyingCloud({
+  top,
+  width,
+  duration,
+  delay,
+  reverse = false,
+}: {
+  top: string;
+  width: string;
+  duration: number;
+  delay: number;
+  reverse?: boolean;
+}) {
+  return (
+    <MotionBox
+      position="absolute"
+      top={top}
+      left={reverse ? "auto" : "-220px"}
+      right={reverse ? "-220px" : "auto"}
+      width={width}
+      pointerEvents="none"
+      initial={{ x: 0 }}
+      animate={{
+        x: reverse ? ["0vw", "-125vw"] : ["0vw", "125vw"],
+      }}
+      transition={{
+        duration,
+        delay,
+        repeat: Infinity,
+        ease: "linear",
+      }}
+    >
+      <img
+        src={cloud}
+        alt=""
+        style={{
+          display: "block",
+          width: "100%",
+          height: "auto",
+        }}
+      />
+    </MotionBox>
+  );
+}
 
 export default function Hero() {
   return (
     <Box
-      minH="100vh"
+      minH="100svh"
       position="relative"
       overflow="hidden"
-      bg="#302C27"
+      bg="#eaf5ff"
       display="flex"
       alignItems="center"
       justifyContent="center"
+      py={{ base: 10, md: 14 }}
     >
-      {/* VIDEO */}
-
-      <Box position="absolute" inset="0" width="100%" height="100%">
-        <video
-          src={weddingHero}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            objectPosition: "center",
-          }}
-        />
-      </Box>
-
-      {/* DARK / WARM OVERLAY */}
-
-      <Box position="absolute" inset="0" bg="rgba(35, 29, 24, 0.30)" />
-
-      {/* SOFT GRADIENT */}
-
+      {/* Svetloplavo nebo */}
       <Box
         position="absolute"
-        inset="0"
-        bgGradient="linear(to-b, rgba(30,25,20,0.05), rgba(30,25,20,0.38))"
+        inset={0}
+        bgGradient="linear(to-b, #dceeff, #f4f9ff, #e4f2ff)"
       />
 
-      {/* CONTENT */}
+      {/* Oblaci u pozadini */}
+      <FlyingCloud top="4%" width="170px" duration={46} delay={0} />
+      <FlyingCloud top="18%" width="125px" duration={52} delay={-22} reverse />
+      <FlyingCloud top="37%" width="155px" duration={48} delay={-12} />
+      <FlyingCloud top="59%" width="185px" duration={54} delay={-30} reverse />
+      <FlyingCloud top="79%" width="150px" duration={45} delay={-8} />
 
+      {/* Naslov */}
       <MotionBox
         position="relative"
         zIndex={2}
-        color="white"
+        width="100%"
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
         textAlign="center"
-        px={6}
-        initial={{ opacity: 0, y: 30 }}
+        px={3}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{
-          duration: 1.4,
-          delay: 0.4,
-          ease: [0.22, 1, 0.36, 1],
-        }}
+        transition={{ duration: 1.2, ease: "easeOut" }}
       >
-        <VStack gap={5}>
-          {/* EYEBROW */}
+        <Text
+          fontSize={{ base: "10px", md: "12px" }}
+          letterSpacing="0.25em"
+          textTransform="uppercase"
+          color="#6483a0"
+          mb={3}
+        >
+          Specijalna isporuka
+        </Text>
 
-          <Text
-            fontSize="9px"
-            letterSpacing="0.45em"
-            textTransform="uppercase"
-            opacity={0.85}
-          >
-            Sa zadovoljstvom vas pozivamo da prisustvujete našem venčanju
-          </Text>
+        <Text
+          fontFamily="serif"
+          fontSize={{ base: "30px", sm: "40px", md: "52px" }}
+          lineHeight="1.15"
+          color="#315777"
+          mb={3}
+        >
+          Spremni za ukrcavanje?
+        </Text>
 
-          {/* NAMES */}
+        <Text
+          fontFamily="serif"
+          fontSize={{ base: "18px", md: "24px" }}
+          color="#587b98"
+          maxW="500px"
+          mb={5}
+        >
+          Mijat te zove na svoj prvi rođendan
+        </Text>
 
-          <Text
-            fontFamily="serif"
-            fontSize={{
-              base: "64px",
-              sm: "78px",
-              md: "100px",
-              lg: "120px",
+        {/* Ilustrovana pozivnica */}
+        <MotionBox
+          position="relative"
+          zIndex={2}
+          width="50%"
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          textAlign="center"
+          px={1}
+          style={{ y: "-55px" }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.2, ease: "easeOut" }}
+        >
+          <img
+            src={invitation}
+            alt="Mijatova pozivnica za prvi rođendan"
+            style={{
+              display: "block",
+              width: "100%",
+              height: "auto",
+              filter: "drop-shadow(0 12px 22px rgba(61, 89, 112, 0.12))",
             }}
-            fontWeight="400"
-            lineHeight="0.85"
-            letterSpacing="-0.04em"
-          >
-            Marija
-            <br />
-            <Box
-              as="span"
-              fontSize={{
-                base: "38px",
-                md: "52px",
-                lg: "62px",
-              }}
-              fontStyle="italic"
-              mx={2}
-            >
-              &
-            </Box>
-            <br />
-            Damjan
-          </Text>
-
-          {/* DIVIDER */}
-
-          <Box width="45px" height="1px" bg="rgba(255,255,255,0.75)" my={2} />
-
-          {/* DATE */}
-
-          <Text
-            fontFamily="serif"
-            fontSize={{
-              base: "20px",
-              md: "24px",
-            }}
-            letterSpacing="0.03em"
-          >
-            September 12, 2027
-          </Text>
-
-          {/* LOCATION */}
-
-          <Text
-            fontSize="9px"
-            letterSpacing="0.35em"
-            textTransform="uppercase"
-            opacity={0.85}
-          >
-            Perla Event · Beograd
-          </Text>
-        </VStack>
+          />
+        </MotionBox>
       </MotionBox>
 
-      {/* SCROLL INDICATOR */}
-
+      {/* Indikator za skrolovanje */}
       <MotionBox
         position="absolute"
-        bottom="5%"
+        bottom="2%"
         left="50%"
-        transform="translateX(-50%)"
         zIndex={3}
         display="flex"
         flexDirection="column"
         alignItems="center"
-        gap={3}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{
-          delay: 1.8,
-          duration: 1,
-        }}
+        gap={2}
+        style={{ x: "-50%" }}
+        animate={{ opacity: [0.5, 1, 0.5] }}
+        transition={{ duration: 2, repeat: Infinity }}
       >
         <Text
-          fontSize="8px"
-          letterSpacing="0.3em"
+          fontSize="9px"
+          letterSpacing="0.2em"
           textTransform="uppercase"
-          color="white"
-          opacity={0.8}
+          color="#6483a0"
+          whiteSpace="nowrap"
         >
-          Prevuci na dole
+          Skroluj naniže
         </Text>
 
-        <MotionBox
-          width="1px"
-          height="42px"
-          bg="rgba(255,255,255,0.75)"
-          transformOrigin="top"
-          animate={{
-            scaleY: [0.4, 1, 0.4],
-            opacity: [0.4, 1, 0.4],
-          }}
-          transition={{
-            duration: 1.8,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
+        <Box width="1px" height="25px" bg="#7fa9c9" />
       </MotionBox>
     </Box>
   );

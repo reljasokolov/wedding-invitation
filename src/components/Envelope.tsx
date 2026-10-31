@@ -1,316 +1,187 @@
-import { useState } from "react";
-import { Box, Button, Text, VStack } from "@chakra-ui/react";
-import { motion, AnimatePresence } from "framer-motion";
-import envelopeBg from "../assets/envelope.png";
+import { useEffect, useRef, useState } from "react";
+import { Box, Image, Text } from "@chakra-ui/react";
+import { motion } from "framer-motion";
+import { useRive, Layout, Fit, Alignment } from "@rive-app/react-canvas";
 
-const MotionBox = motion(Box);
+import envelopeImage from "../assets/envelope-1.png";
+import cloudImage from "../assets/cloud.png";
+
+const MotionBox = motion.create(Box);
 
 interface EnvelopeProps {
   onComplete: () => void;
 }
 
+function FlyingCloud({
+  top,
+  delay,
+  duration,
+  width,
+}: {
+  top: string;
+  delay: number;
+  duration: number;
+  width: string;
+}) {
+  return (
+    <MotionBox
+      position="absolute"
+      top={top}
+      left="-30%"
+      width={width}
+      zIndex={0}
+      pointerEvents="none"
+      animate={{ x: ["0vw", "140vw"] }}
+      transition={{
+        duration,
+        delay,
+        repeat: Infinity,
+        ease: "linear",
+      }}
+    >
+      <Image src={cloudImage} width="100%" opacity={0.75} />
+    </MotionBox>
+  );
+}
+
 export default function Envelope({ onComplete }: EnvelopeProps) {
   const [isOpening, setIsOpening] = useState(false);
 
-  const handleOpen = () => {
-    setIsOpening(true);
+  const startedRef = useRef(false);
+  const completedRef = useRef(false);
 
-    setTimeout(() => {
-      onComplete();
-    }, 2200);
+  const { RiveComponent, rive } = useRive({
+    src: "src/assets/envelope.riv",
+    autoplay: false,
+    layout: new Layout({
+      fit: Fit.Contain,
+      alignment: Alignment.Center,
+    }),
+    onStop: () => {
+      if (startedRef.current && !completedRef.current) {
+        completedRef.current = true;
+        onComplete();
+      }
+    },
+  });
+
+  useEffect(() => {
+    if (isOpening && rive && !startedRef.current) {
+      startedRef.current = true;
+      rive.play("Timeline 1");
+    }
+  }, [isOpening, rive]);
+
+  const handleOpen = () => {
+    if (startedRef.current || isOpening) return;
+    setIsOpening(true);
   };
 
   return (
     <Box
-      position="fixed"
-      inset="0"
-      bg="#F4F0E8"
+      minH="100svh"
+      width="100%"
+      position="relative"
+      overflow="hidden"
       display="flex"
       alignItems="center"
       justifyContent="center"
-      overflow="hidden"
-      zIndex={100}
+      bgGradient="linear(to-b, #dceeff, #f4f9ff, #e4f2ff)"
     >
+      <FlyingCloud top="12%" delay={0} duration={48} width="180px" />
+      <FlyingCloud top="28%" delay={12} duration={55} width="140px" />
+      <FlyingCloud top="72%" delay={5} duration={52} width="200px" />
+
       <Box
-        position="absolute"
-        inset="0"
-        bgImage={`url(${envelopeBg})`}
-        bgSize="cover"
-        backgroundPosition="center"
-        bgRepeat="no-repeat"
-        opacity={0.3}
-      />
-      {/* TOP LABEL */}
-      <AnimatePresence>
-        {!isOpening && (
-          <MotionBox
-            position="absolute"
-            top="9%"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.7 }}
-          >
-            <Text
-              fontSize="10px"
-              letterSpacing="0.45em"
-              textTransform="uppercase"
-              color="#6F685E"
-            >
-              Pozivamo te na naše venčanje
-            </Text>
-          </MotionBox>
-        )}
-      </AnimatePresence>
-
-      {/* ENVELOPE */}
-      <MotionBox
+        width="100%"
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
         position="relative"
-        width={{ base: "330px", md: "500px" }}
-        height={{ base: "220px", md: "330px" }}
-        style={{ perspective: 1400 }}
-        animate={
-          isOpening
-            ? {
-                y: 80,
-                scale: 1.06,
-              }
-            : {
-                y: 0,
-                scale: 1,
-              }
-        }
-        transition={{
-          duration: 2,
-          ease: [0.22, 1, 0.36, 1],
-        }}
+        zIndex={1}
+        px={4}
       >
-        {/* SHADOW */}
-        <Box
-          position="absolute"
-          bottom="-35px"
-          left="7%"
-          width="86%"
-          height="30px"
-          borderRadius="50%"
-          bg="rgba(50, 43, 35, 0.13)"
-          filter="blur(22px)"
-        />
-
-        {/* PAPER */}
-        <MotionBox
-          position="absolute"
-          top="8%"
-          left="8%"
-          width="84%"
-          height="84%"
-          bg="#FCFAF5"
-          zIndex={2}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          boxShadow="0 8px 30px rgba(0,0,0,0.07)"
-          animate={
-            isOpening
-              ? {
-                  y: "-62%",
-                  scale: 1.04,
-                }
-              : {
-                  y: "0%",
-                  scale: 1,
-                }
-          }
-          transition={{
-            duration: 1.6,
-            delay: 0.2,
-            ease: [0.22, 1, 0.36, 1],
-          }}
-        >
-          <VStack gap={3}>
-            <Text
-              fontFamily="serif"
-              fontSize={{ base: "26px", md: "38px" }}
-              fontWeight="400"
-              letterSpacing="0.08em"
-              color="#302C27"
-            >
-              Marija & Damjan
-            </Text>
-
-            <Text
-              fontSize="9px"
-              letterSpacing="0.32em"
-              textTransform="uppercase"
-              color="#756D63"
-            >
-              September 12, 2027
-            </Text>
-          </VStack>
-        </MotionBox>
-
-        {/* ENVELOPE BASE */}
-        <Box
-          position="absolute"
-          inset="0"
-          bg="#E8E0D3"
-          border="1px solid #CFC3B2"
-          zIndex={3}
-          boxShadow="0 25px 70px rgba(0,0,0,0.10)"
-        />
-
-        {/* LEFT FOLD */}
-        <Box
-          position="absolute"
-          inset="0"
-          zIndex={4}
-          clipPath="polygon(0 0, 50% 50%, 0 100%)"
-          bg="#DED4C6"
-        />
-
-        {/* RIGHT FOLD */}
-        <Box
-          position="absolute"
-          inset="0"
-          zIndex={4}
-          clipPath="polygon(100% 0, 50% 50%, 100% 100%)"
-          bg="#D9CDBD"
-        />
-
-        {/* BOTTOM FOLD */}
-        <Box
-          position="absolute"
-          inset="0"
-          zIndex={5}
-          clipPath="polygon(0 100%, 50% 49%, 100% 100%)"
-          bg="#E2D8CA"
-        />
-
-        {/* TOP FLAP */}
-        <MotionBox
-          position="absolute"
-          inset="0"
-          zIndex={7}
-          bg="#EAE2D6"
-          clipPath="polygon(0 0, 50% 52%, 100% 0)"
-          transformOrigin="top center"
-          animate={{
-            rotateX: isOpening ? -180 : 0,
-          }}
-          transition={{
-            duration: 1.35,
-            ease: [0.22, 1, 0.36, 1],
-          }}
-          style={{
-            transformStyle: "preserve-3d",
-            backfaceVisibility: "hidden",
-          }}
-        />
-
-        {/* INNER FLAP SHADOW */}
-        <MotionBox
-          position="absolute"
-          inset="0"
-          zIndex={6}
-          clipPath="polygon(0 0, 50% 52%, 100% 0)"
-          bg="#D6CABA"
-          animate={{
-            opacity: isOpening ? 0 : 1,
-          }}
-          transition={{
-            duration: 0.35,
-            delay: 0.9,
-          }}
-        />
-
-        {/* CENTERED WAX SEAL */}
-        <MotionBox
-          position="absolute"
-          inset="0"
-          zIndex={10}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          pointerEvents="none"
-          animate={{
-            opacity: isOpening ? 0 : 1,
-            scale: isOpening ? 0.65 : 1,
-          }}
-          transition={{
-            duration: 0.45,
-            ease: "easeInOut",
-          }}
-        >
-          <Box
-            width={{ base: "48px", md: "58px" }}
-            height={{ base: "48px", md: "58px" }}
-            borderRadius="50%"
-            bg="#9F8060"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            color="#F8F3EA"
-            fontFamily="serif"
-            fontSize={{ base: "12px", md: "14px" }}
-            letterSpacing="0.08em"
-            border="2px solid rgba(255,255,255,0.18)"
-            boxShadow="0 6px 18px rgba(0,0,0,0.16)"
-          >
-            M&D
-          </Box>
-        </MotionBox>
-      </MotionBox>
-
-      {/* OPEN BUTTON */}
-      <AnimatePresence>
         {!isOpening && (
-          <MotionBox
-            position="absolute"
-            bottom="9%"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            transition={{
-              duration: 0.7,
-              delay: 0.5,
-            }}
+          <Text
+            color="#6686a5"
+            fontSize={{ base: "sm", md: "md" }}
+            letterSpacing="0.18em"
+            textTransform="uppercase"
+            mb={{ base: 5, md: 7 }}
+            textAlign="center"
           >
-            <Button
-              variant="plain"
-              onClick={handleOpen}
-              fontSize="10px"
-              letterSpacing="0.3em"
-              textTransform="uppercase"
-              fontWeight="400"
-              color="#4E4840"
-              _hover={{
-                color: "#9F8060",
-              }}
-            >
-              Otvori!
-            </Button>
-          </MotionBox>
+            Specijalna isporuka
+          </Text>
         )}
-      </AnimatePresence>
 
-      {/* TRANSITION */}
-      <AnimatePresence>
-        {isOpening && (
-          <MotionBox
-            position="fixed"
-            inset="0"
-            bg="#F4F0E8"
-            zIndex={200}
-            pointerEvents="none"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{
-              delay: 1.55,
-              duration: 0.7,
-            }}
-          />
+        <Box
+          width="min(90vw, 750px)"
+          aspectRatio="1280 / 823"
+          position="relative"
+          flexShrink={0}
+          mx="auto"
+        >
+          {!isOpening && (
+            <Image
+              src={envelopeImage}
+              alt="Koverta"
+              position="absolute"
+              top="5%"
+              left={0}
+              width="100%"
+              height="100%"
+              objectFit="fill"
+              display="block"
+              cursor="pointer"
+              draggable={false}
+              onClick={handleOpen}
+            />
+          )}
+
+          {isOpening && (
+            <Box
+              position="absolute"
+              top="41.5%"
+              left="48.5%"
+              width="150%"
+              height="110%"
+              transform="translate(-50%, -50%) scale(1.2)"
+              transformOrigin="center center"
+            >
+              <RiveComponent
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  display: "block",
+                }}
+              />
+            </Box>
+          )}
+        </Box>
+
+        {!isOpening ? (
+          <Text
+            mt={{ base: 5, md: 7 }}
+            color="#6686a5"
+            fontSize={{ base: "sm", md: "md" }}
+            letterSpacing="0.08em"
+            textAlign="center"
+          >
+            Klikni da otvoriš
+          </Text>
+        ) : (
+          <Text
+            mt={{ base: 4, md: 7 }}
+            color="#6686a5"
+            fontSize={{ base: "sm", md: "md" }}
+            letterSpacing="0.08em"
+            textAlign="center"
+          >
+            Spremi se za poletanje...
+          </Text>
         )}
-      </AnimatePresence>
+      </Box>
     </Box>
   );
 }
