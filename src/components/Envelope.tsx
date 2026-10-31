@@ -5,6 +5,7 @@ import { useRive, Layout, Fit, Alignment } from "@rive-app/react-canvas";
 
 import envelopeImage from "../assets/envelope-1.png";
 import cloudImage from "../assets/cloud.png";
+import envelopeRive from "../assets/envelope.riv";
 
 const MotionBox = motion.create(Box);
 
@@ -51,7 +52,7 @@ export default function Envelope({ onComplete }: EnvelopeProps) {
   const completedRef = useRef(false);
 
   const { RiveComponent, rive } = useRive({
-    src: "src/assets/envelope.riv",
+    src: envelopeRive,
     autoplay: false,
     layout: new Layout({
       fit: Fit.Contain,
