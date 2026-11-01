@@ -61,7 +61,7 @@ export default function Hero() {
       display="flex"
       alignItems="center"
       justifyContent="center"
-      py={{ base: 10, md: 14 }}
+      py={{ base: 8, md: 14 }}
     >
       {/* Svetloplavo nebo */}
       <Box
@@ -77,7 +77,7 @@ export default function Hero() {
       <FlyingCloud top="59%" width="185px" duration={54} delay={-30} reverse />
       <FlyingCloud top="79%" width="150px" duration={45} delay={-8} />
 
-      {/* Naslov */}
+      {/* Naslov i pozivnica */}
       <MotionBox
         position="relative"
         zIndex={2}
@@ -86,7 +86,7 @@ export default function Hero() {
         flexDirection="column"
         alignItems="center"
         textAlign="center"
-        px={3}
+        px={{ base: 2, md: 3 }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.2, ease: "easeOut" }}
@@ -96,14 +96,14 @@ export default function Hero() {
           letterSpacing="0.25em"
           textTransform="uppercase"
           color="#6483a0"
-          mb={3}
+          mb={{ base: 2, md: 3 }}
         >
           Specijalna isporuka
         </Text>
 
         <Text
           fontFamily="serif"
-          fontSize={{ base: "30px", sm: "40px", md: "52px" }}
+          fontSize={{ base: "27px", sm: "36px", md: "52px" }}
           lineHeight="1.15"
           color="#315777"
           mb={3}
@@ -113,28 +113,29 @@ export default function Hero() {
 
         <Text
           fontFamily="serif"
-          fontSize={{ base: "18px", md: "24px" }}
+          fontSize={{ base: "16px", md: "24px" }}
           color="#587b98"
           maxW="500px"
-          mb={5}
+          mb={{ base: 3, md: 5 }}
         >
           Mijat te zove na svoj prvi rođendan
         </Text>
 
         {/* Ilustrovana pozivnica */}
         <MotionBox
-          position="relative"
-          zIndex={2}
-          width="50%"
-          display="flex"
-          flexDirection="column"
-          alignItems="center"
-          textAlign="center"
-          px={1}
-          style={{ y: "-55px" }}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
+          width={{
+            base: "95%",
+            sm: "85%",
+            md: "75%",
+          }}
+          maxW="680px"
+          initial={{ opacity: 0, scale: 0.95, y: 15 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{
+            duration: 1.1,
+            delay: 0.25,
+            ease: "easeOut",
+          }}
         >
           <img
             src={invitation}
